@@ -7,7 +7,10 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    @all_ratings = Movie.all_ratings
+    @selected_ratings_hash = params[:ratings] || select_all_hash
+    @selected_ratings = selected_ratings
+    @movies = Movie.filter_by_ratings(selected_ratings)
   end
 
   def new
@@ -44,4 +47,13 @@ class MoviesController < ApplicationController
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
+  
+  def selected_ratings
+    @selected_ratings_hash&.keys
+  end
+  
+  def select_all_hash
+    Hash[@all_ratings.map {|rating| [rating, "#1"]} ]
+  end
+  
 end
