@@ -5,7 +5,7 @@ class Movie < ActiveRecord::Base
     %w(G PG PG-13 R) # Same as above, this is more Ruby idiomatic
   end
   
-  def self.filter_by_ratings(selected_ratings)
-      Movie.where(rating: selected_ratings)
+  def self.filter_and_sort(selected_ratings, sorting)
+      Movie.where(rating: selected_ratings).order(sorting)
   end
 end
