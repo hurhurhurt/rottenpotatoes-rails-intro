@@ -10,7 +10,7 @@ class MoviesController < ApplicationController
     @all_ratings = Movie.all_ratings
     @selected_ratings_hash = params[:ratings] || select_all_hash
     @selected_ratings = selected_ratings
-    @movies = Movie.filter_by_ratings(selected_ratings)
+    @movies = Movie.filter_by_ratings(@selected_ratings)
   end
 
   def new
