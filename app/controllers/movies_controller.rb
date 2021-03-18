@@ -7,12 +7,17 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @all_ratings = Movie.all_ratings
-    @selected_ratings_hash = params[:ratings] || select_all_hash
-    @selected_ratings = selected_ratings
-    @sorting = params[:sorting] || "id"
+
+    update_session_hash
+    render_redirect
     determine_highlighting
-    @movies = Movie.filter_and_sort(@selected_ratings, @sorting)
+    
+    #set instance vars for view
+    @all_ratings = Movie.all_ratings
+    @selected_ratings_hash = session[:ratings] #params[:ratings] || select_all_hash
+    @selected_ratings = selected_ratings
+    @sorting = session[:sorting] #params[:sorting] || "id"
+    @movies = Movie.filter_and_sort(@selected_ratings,@sorting)
   end
 
   def new
@@ -51,16 +56,29 @@ class MoviesController < ApplicationController
   end
   
   def selected_ratings
-    @selected_ratings_hash&.keys
+    @selected_ratings_hash.keys
   end
   
   def select_all_hash
-    Hash[@all_ratings.map {|rating| [rating, "#1"]} ]
+     #{"G"->"1", "PG"->"1", "PG-13"->"1", "R"->"1"}
+    Hash[ Movie.all_ratings.map { |rating| [ rating , "1" ] } ]
   end
   
   def determine_highlighting
-    @highlight = {:title => "", :release_date => "", :id => ""}
-    @highlight[@sorting] = "bg-warning hilite"
+    @highlight = {:title => "", :release_date => "", :id => ""} 
+    @highlight[session[:sorting]] = "bg-warning hilite"
   end
   
+  def update_session_hash
+    session[:ratings] = params[:ratings] || session[:ratings] || select_all_hash
+    session[:sorting] = params[:sorting] || session[:sorting] || "id"
+  end
+  
+  def render_redirect
+    return unless (session[:ratings] and params[:ratings].nil? ) or
+                  (session[:sorting] and params[:sorting].nil? )
+    redirect_to movies_path(:ratings => session[:ratings], :sorting => session[:sorting]) and return 
+  end
+ 
 end
+
